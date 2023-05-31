@@ -14,6 +14,8 @@ b_size = 32
 img_height = 128
 img_width = 128
 epochs = 10
+model_dir = 'trainedModels/'
+
   
   
 def make_datasets():
@@ -127,6 +129,7 @@ def run_model(model, train_ds, val_ds):
 
   loss = history.history['loss']
   val_loss = history.history['val_loss']
+  tf.saved_model.save(model, model_dir)
   return model,acc,val_acc, loss, val_loss
 
 
