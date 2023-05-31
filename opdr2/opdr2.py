@@ -154,6 +154,15 @@ def predict_img(model, class_names):
 
 
 def evaluate_and_plot(model,acc,val_acc, loss, val_loss):
+  """_summary_
+
+  Args:
+      model (_type_): _description_
+      acc (_type_): _description_
+      val_acc (_type_): _description_
+      loss (_type_): _description_
+      val_loss (_type_): _description_
+  """
   print("Evaluate on test data")
   results = model.evaluate(test_ds, batch_size=32)
   print("test loss, test acc:", results)
