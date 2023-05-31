@@ -21,7 +21,8 @@ epochs = 10
 
 
 def make_datasets():
-    """loads in the dataset
+    """This function uses the keras.utils.image_dataset_from_directory
+    to create three datasets from the data in the directories.
 
     Returns:
         train_ds: dataset for training
@@ -56,17 +57,17 @@ def make_datasets():
 
 
 def data_augmentation(train_ds, valid_ds):
-    """augments the data and
-
+    """This functino uses existing training data form the training dataset
+    and uses data augmentation to generate more data 
     Args:
-        train_ds object: dataset for training
-        valid_ds object: dataset for validation
+        train_ds : Training dataset created from images in the training dir
+        valid_ds : Validation dataset created from images in the validation dir
 
     Returns:
         train_ds : augmented dataset for training
         valid_ds : augmented dataset for validation
-        classnames : list of classnames presenti n dataset
-        n_classes : integer of number of classes present
+        classnames : list of classnames presented in dataset
+        n_classes : integer of number of classes present in dataset
     """
     classnames = train_ds.class_names
     n_classes = len(classnames)
