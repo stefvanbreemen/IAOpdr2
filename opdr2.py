@@ -94,23 +94,31 @@ def create_model():
         model : The machine learning model
     """
     model = Sequential([
-        # Layers for constructing a neural network
+    # Layers for constructing a neural network
         layers.Rescaling(1. / 255,
                          input_shape=(img_height, img_width, 3)),
         layers.RandomFlip("horizontal_and_vertical",
                           input_shape=(img_height,
                                        img_width,
                                        3)),
+    # Preprocessing layer which randomly rotates images during training
         layers.RandomRotation(0.1),
+    # Preprocessing layer which randomly zooms images during training
         layers.RandomZoom(0.1),
+    # 2D convolution layer
         layers.Conv2D(16, 3, padding='same', activation='relu'),
+    # Downsamples the input along its spatial dimensions
         layers.MaxPooling2D(),
         layers.Conv2D(32, 3, padding='same', activation='relu'),
         layers.MaxPooling2D(),
         layers.Conv2D(64, 3, padding='same', activation='relu'),
         layers.MaxPooling2D(),
+    # Applies dropout to randomly set input units to 0
         layers.Dropout(0.2),
+    # Flattens the input without affecting the batch size
         layers.Flatten(),
+    # Simple layer of neurons in which each neuron receives input
+    # the prevoous layer
         layers.Dense(128, activation='relu'),
         layers.Dense(n_classes, activation="softmax")
     ])
