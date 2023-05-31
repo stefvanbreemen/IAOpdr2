@@ -33,6 +33,7 @@ def make_datasets():
     valid_dir = pathlib.Path('opdr2/dataset2/valid')
     test_dir = pathlib.Path('opdr2/dataset2/test')
 
+    # Creates training dataset
     train_ds = tf.keras.utils.image_dataset_from_directory(
         train_dir,
         seed=123,
@@ -40,13 +41,14 @@ def make_datasets():
         batch_size=b_size,
     )
 
+    # Creates validation dataset
     val_ds = tf.keras.utils.image_dataset_from_directory(
         valid_dir,
         seed=123,
         image_size=(img_height, img_width),
         batch_size=b_size,
     )
-
+    # Creates training dataset
     test_ds = tf.keras.utils.image_dataset_from_directory(
         test_dir,
         seed=123,
@@ -58,7 +60,7 @@ def make_datasets():
 
 def data_augmentation(train_ds, valid_ds):
     """This functino uses existing training data form the training dataset
-    and uses data augmentation to generate more data 
+    and uses data augmentation to generate more data
     Args:
         train_ds : Training dataset created from images in the training dir
         valid_ds : Validation dataset created from images in the validation dir
@@ -69,12 +71,14 @@ def data_augmentation(train_ds, valid_ds):
         classnames : list of classnames presented in dataset
         n_classes : integer of number of classes present in dataset
     """
+
     classnames = train_ds.class_names
     n_classes = len(classnames)
     AUTOTUNE = tf.data.AUTOTUNE
     train_ds = train_ds.cache().shuffle(1000).prefetch(
         buffer_size=AUTOTUNE)
     valid_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
+    # Data normalization
     normalization_layer = layers.Rescaling(1. / 255)
     normalized_ds = train_ds.map(
         lambda x, y: (normalization_layer(x), y))
@@ -90,6 +94,7 @@ def create_model():
         model : The machine learning model
     """
     model = Sequential([
+        # Layers for constructing a neural network
         layers.Rescaling(1. / 255,
                          input_shape=(img_height, img_width, 3)),
         layers.RandomFlip("horizontal_and_vertical",
@@ -109,6 +114,7 @@ def create_model():
         layers.Dense(128, activation='relu'),
         layers.Dense(n_classes, activation="softmax")
     ])
+    # Compiling model and keeping track of accuracy
     model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(),
                   optimizer='adam',
                   metrics=['accuracy'])
@@ -131,6 +137,7 @@ def run_model(model, train_ds, val_ds):
         loss : The loss of the model on the training data
         val_loss : The loss of the model on the validation data
     """
+    # Fitting the model
     history = model.fit(
         train_ds,
         validation_data=val_ds,
@@ -141,6 +148,7 @@ def run_model(model, train_ds, val_ds):
 
     loss = history.history['loss']
     val_loss = history.history['val_loss']
+    # Saving the model
     tf.saved_model.save(model, model_dir)
     return model, acc, val_acc, loss, val_loss
 
@@ -159,7 +167,9 @@ def predict_img(model, class_names):
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0)  # Create a batch
 
+    # Predicting images from array
     predictions = model.predict(img_array)
+    # Score based on the model predictions
     score = tf.nn.softmax(predictions[0])
 
     print(
@@ -187,6 +197,7 @@ def evaluate_and_plot(model, acc, val_acc, loss, val_loss):
     print("\npredictions shape:", predictions.shape)
 
     epochs_range = range(epochs)
+    # Plotting results
     plt.figure(figsize=(8, 8))
     plt.subplot(1, 2, 1)
     plt.plot(epochs_range, acc, label='Training Accuracy')
@@ -203,6 +214,8 @@ def evaluate_and_plot(model, acc, val_acc, loss, val_loss):
 
 
 if __name__ == "__main__":
+    """This is the main, everything is executed here
+    """
     train_ds, valid_ds, test_ds = make_datasets()
     train_ds, valid_ds, classnames, n_classes = data_augmentation(
         train_ds, valid_ds)
